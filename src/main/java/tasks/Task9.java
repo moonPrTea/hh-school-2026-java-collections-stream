@@ -19,76 +19,56 @@ import java.util.stream.Stream;
 P.S. Код в целом рабочий (не везде), комментарии оставлены чтобы вам проще понять чего же хотел автор
 P.P.S Здесь ваши правки необходимо прокомментировать (можно в коде, можно в PR на Github)
  */
-public class Task9 {
+public class  Task9 {
 
   private long count;
 
-  // Костыль, эластик всегда выдает в топе "фальшивую персону".
-  // Конвертируем начиная со второй
+  // Before: this void has a bag with
+  // skip first element
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::firstName).collect(Collectors.toList());
+    return persons.stream().skip(1).map(Person::firstName).collect(Collectors.toList());
   }
 
-  // Зачем-то нужны различные имена этих же персон (без учета фальшивой разумеется)
+  // distinct names by HashSet, that is much better and faster than stream.distinct() because of hash tables
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons));
   }
 
-  // Тут фронтовая логика, делаем за них работу - склеиваем ФИО
+  // string concatenation of person name, surname and middle name for frontend developers
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.secondName() != null) {
-      result += person.secondName();
-    }
-
-    if (person.firstName() != null) {
-      result += " " + person.firstName();
-    }
-
-    if (person.secondName() != null) {
-      result += " " + person.secondName();
-    }
-    return result;
+    return Stream.of(person.firstName(), person.secondName(), person.middleName())
+            .collect(Collectors.joining(" "));
   }
 
-  // словарь id персоны -> ее имя
+  // Map with Person.id() -> Person::firstName
+  // for loop is much slower than the stream and makes it harder to read
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.id())) {
-        map.put(person.id(), convertPersonToString(person));
-      }
-    }
-    return map;
+    return persons.stream()
+            .collect(Collectors.toMap(
+                    Person::id,
+                    Person::firstName
+            ));
   }
 
-  // есть ли совпадающие в двух коллекциях персоны?
+  // are there any matching personalities in the two collections?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
-      }
-    }
-    return has;
+    // hash table search - O(1), but for nested loop for its O(nm)
+    HashSet<Person> personSet = new HashSet<>(persons2);
+    return persons1.stream()
+            .anyMatch(personSet::contains);
   }
 
-  // Посчитать число четных чисел
+  // count even numbers
   public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+    // count was created specifically for the tasks of getting the number
+    return numbers.filter(num -> num % 2 == 0).count();
   }
 
-  // Загадка - объясните почему assert тут всегда верен
-  // Пояснение в чем соль - мы перетасовали числа, обернули в HashSet, а toString() у него вернул их в сортированном порядке
+  // Riddle - explain why assert is always true here
+  // Explanation of the salt - we shuffled the numbers, wrapped them in a HashSet, and toString() returned them in sorted order.
   void listVsSet() {
+    // the hash code in this case corresponds to the number itself (there are no additional conversions)
+    // but on different jvms there may not be such a "randomness" with the order
     List<Integer> integers = IntStream.rangeClosed(1, 10000).boxed().collect(Collectors.toList());
     List<Integer> snapshot = new ArrayList<>(integers);
     Collections.shuffle(integers);

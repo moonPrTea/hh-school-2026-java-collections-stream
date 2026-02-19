@@ -3,6 +3,7 @@ package tasks;
 import common.Person;
 import common.PersonService;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +24,10 @@ public class Task1 {
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
     Set<Person> persons = personService.findPersons(personIds);
-    return Collections.emptyList();
+    return persons.stream()
+            .sorted(Comparator.comparingInt(
+                    person -> personIds.indexOf(person.id())
+            ))
+            .toList();
   }
 }
