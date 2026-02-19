@@ -37,6 +37,7 @@ public class  Task9 {
   // string concatenation of person name, surname and middle name for frontend developers
   public String convertPersonToString(Person person) {
     return Stream.of(person.firstName(), person.secondName(), person.middleName())
+            .map(personField -> personField == null ? "": personField) // to convert null values to empty strings
             .collect(Collectors.joining(" "));
   }
 
@@ -44,16 +45,18 @@ public class  Task9 {
   // for loop is much slower than the stream and makes it harder to read
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
     return persons.stream()
+            .filter(person -> person.id() != null)
             .collect(Collectors.toMap(
                     Person::id,
-                    Person::firstName
+                    Person::firstName,
+                    (previous, newKey) -> previous
             ));
   }
 
   // are there any matching personalities in the two collections?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
     // hash table search - O(1), but for nested loop for its O(nm)
-    HashSet<Person> personSet = new HashSet<>(persons2);
+    Set<Person> personSet = new HashSet<>(persons2);
     return persons1.stream()
             .anyMatch(personSet::contains);
   }

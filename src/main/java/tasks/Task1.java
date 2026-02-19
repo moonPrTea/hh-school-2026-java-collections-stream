@@ -4,6 +4,8 @@ import common.Person;
 import common.PersonService;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /*
 Задача 1
@@ -22,10 +24,12 @@ public class Task1 {
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
     Set<Person> persons = personService.findPersons(personIds);
+
+    Map<Integer, Person> personAndIds = persons.stream()
+            .collect(Collectors.toMap(Person::id, Function.identity()));
+
     return personIds.stream()
-            .flatMap(id -> persons.stream()
-                    .filter(person -> Objects.equals(person.id(), id))
-            )
+            .map(personAndIds::get)
             .toList();
   }
 }
