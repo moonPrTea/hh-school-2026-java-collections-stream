@@ -19,7 +19,7 @@ public class Task3 {
     return persons.stream()
             .sorted(Comparator.comparing(Person::secondName, Comparator.nullsFirst(String::compareTo))
                     .thenComparing(Person::firstName, Comparator.nullsFirst(String::compareTo))
-                    .thenComparing(Person::createdAt, Comparator.nullsFirst(Instant::compareTo))
+                    .thenComparing(Person::createdAt)
             )
             .toList();
   }

@@ -1,14 +1,8 @@
 package tasks;
 
 import common.Person;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -37,7 +31,7 @@ public class  Task9 {
   // string concatenation of person name, surname and middle name for frontend developers
   public String convertPersonToString(Person person) {
     return Stream.of(person.firstName(), person.secondName(), person.middleName())
-            .map(personField -> personField == null ? "": personField) // to convert null values to empty strings
+            .filter(Objects::nonNull)// to convert null values to empty strings
             .collect(Collectors.joining(" "));
   }
 

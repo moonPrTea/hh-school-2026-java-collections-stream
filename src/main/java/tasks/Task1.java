@@ -23,13 +23,12 @@ public class Task1 {
   }
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
-    Set<Person> persons = personService.findPersons(personIds);
-
-    Map<Integer, Person> personAndIds = persons.stream()
+    Map<Integer, Person> persons = personService.findPersons(personIds)
+            .stream()
             .collect(Collectors.toMap(Person::id, Function.identity()));
 
     return personIds.stream()
-            .map(personAndIds::get)
+            .map(persons::get)
             .toList();
   }
 }
